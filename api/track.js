@@ -13,6 +13,15 @@
      stats_hours/<day>/<HH> = n
      stats_devices/<device> = {first, last, days:{<day>:1}, cc, dtype, os, browser}
      stats_live/<device> = last heartbeat ts
+     stats_visitors/<device> = {ip, cc, dtype, os, browser, first, last,
+       visits, sessions, pv:{<page>:views},
+       sess:[{t, pages:{<page>:{s:secs, sc:scrollMax}}}] (newest first, max 8;
+       a new session starts after 30 min of inactivity)}
+     stats_bots/<bot name> = {name, n, last, cc, ip} — crawlers and AI
+       agents are counted SEPARATELY (day/total "bots" maps + this
+       last-seen index), never inside the human numbers. They arrive via
+       the JS tracker (bots that render pages) and via POST {type:"botlog"}
+       from the edge middleware (bots that only fetch HTML).
      stats_admin = {salt, hash} (stats PIN, scrypt)
    Days follow Asia/Karachi (PKT = UTC+5). */
 const {
@@ -23,6 +32,24 @@ const {
 const DEV_RE = /^[a-zA-Z0-9-]{8,40}$/;
 const PAGE_RE = /^[a-z0-9-]{1,40}$/;
 const LIVE_WINDOW = 90 * 1000;
+const SESSION_GAP = 30 * 60 * 1000;
+const MAX_SESS = 8;
+
+function blankVisitor() {
+  return { ip: "", cc: "??", dtype: "", os: "", browser: "", first: 0, last: 0, visits: 0, sessions: 0, pv: {}, sess: [] };
+}
+/* Returns the visitor's current session record, starting (and counting)
+   a new one when the last activity is older than SESSION_GAP. */
+function ensureSession(v, now) {
+  if (!Array.isArray(v.sess)) v.sess = [];
+  if (!v.sess.length || !v.last || now - v.last > SESSION_GAP) {
+    v.sess.unshift({ t: now, pages: {} });
+    v.sessions = (v.sessions || 0) + 1;
+    if (v.sess.length > MAX_SESS) v.sess.length = MAX_SESS;
+  }
+  if (!v.sess[0].pages) v.sess[0].pages = {};
+  return v.sess[0];
+}
 
 function pktDay(ts) {
   return new Date(ts + 5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -70,7 +97,72 @@ function bumpMap(map, key) {
   return m;
 }
 function blankRec() {
-  return { visits: 0, uniques: 0, pages: {}, countries: {}, devtypes: {}, oses: {}, browsers: {}, sources: {} };
+  return { visits: 0, uniques: 0, pages: {}, countries: {}, devtypes: {}, oses: {}, browsers: {}, sources: {}, bots: {} };
+}
+/* Known crawlers / AI agents by user-agent. Returns a display name or
+   null for what looks like a human browser. Display names avoid the
+   characters Firebase keys forbid (. $ # [ ] /). */
+function botName(ua) {
+  const u = String(ua || "");
+  if (!u) return null;
+  const rules = [
+    [/GPTBot/i, "GPTBot (OpenAI)"],
+    [/OAI-SearchBot/i, "OpenAI SearchBot"],
+    [/ChatGPT-User/i, "ChatGPT user agent"],
+    [/ClaudeBot/i, "ClaudeBot (Anthropic)"],
+    [/Claude-Web|anthropic-ai/i, "Claude (Anthropic)"],
+    [/PerplexityBot/i, "PerplexityBot"],
+    [/Perplexity-User/i, "Perplexity user agent"],
+    [/CCBot/i, "CCBot (Common Crawl)"],
+    [/Google-Extended/i, "Google-Extended (AI)"],
+    [/Googlebot/i, "Googlebot"],
+    [/Bingbot/i, "Bingbot"],
+    [/Applebot-Extended/i, "Applebot (AI)"],
+    [/Applebot/i, "Applebot"],
+    [/Meta-ExternalAgent/i, "Meta AI agent"],
+    [/facebookexternalhit/i, "Facebook crawler"],
+    [/Twitterbot/i, "Twitterbot"],
+    [/LinkedInBot/i, "LinkedInBot"],
+    [/DuckDuckBot/i, "DuckDuckBot"],
+    [/YandexBot/i, "YandexBot"],
+    [/Baiduspider/i, "Baiduspider"],
+    [/Bytespider/i, "Bytespider (TikTok)"],
+    [/Amazonbot/i, "Amazonbot"],
+    [/cohere-ai/i, "Cohere AI"],
+    [/Diffbot/i, "Diffbot"],
+    [/ImagesiftBot/i, "ImagesiftBot"],
+    [/PetalBot/i, "PetalBot"],
+    [/SemrushBot/i, "SemrushBot"],
+    [/AhrefsBot/i, "AhrefsBot"],
+    [/MJ12bot/i, "MJ12bot"],
+    [/DotBot/i, "DotBot"],
+    [/DataForSeoBot/i, "DataForSEO Bot"],
+    [/ia_archiver|archive\.org_bot/i, "Internet Archive"],
+    [/MistralAI/i, "Mistral AI"],
+    [/YouBot/i, "YouBot"],
+    [/HeadlessChrome/i, "Headless Chrome"],
+    [/python-requests|python-urllib|Go-http-client|axios|node-fetch|okhttp|curl\/|wget/i, "Script tool"],
+  ];
+  for (const rule of rules) if (rule[0].test(u)) return rule[1];
+  if (/bot|crawl|spider|slurp|fetcher|scraper/i.test(u)) return "Other bot";
+  return null;
+}
+/* Count one bot visit: day + total "bots" maps and the last-seen index.
+   Human counters (visits/uniques/pages/...) are NOT touched. */
+async function recordBot(name, cc, ip) {
+  const now = Date.now();
+  const day = pktDay(now);
+  const dayRec = Object.assign(blankRec(), (await dbGet("stats_days/" + day)) || {});
+  dayRec.bots = bumpMap(dayRec.bots, name);
+  await dbSet("stats_days/" + day, dayRec);
+  const total = Object.assign(blankRec(), (await dbGet("stats_total")) || {});
+  total.bots = bumpMap(total.bots, name);
+  await dbSet("stats_total", total);
+  const prev = (await dbGet("stats_bots/" + name)) || {};
+  await dbSet("stats_bots/" + name, {
+    name, n: (prev.n || 0) + 1, last: now,
+    cc: cc || prev.cc || "??", ip: ip || prev.ip || "",
+  });
 }
 function outRec(rec, date) {
   const r = Object.assign(blankRec(), rec || {});
@@ -100,12 +192,43 @@ async function buildStats() {
     last7.push({ d, visits: rec.visits || 0, uniques: rec.uniques || 0 });
   }
   const hours = (await dbGet("stats_hours/" + today)) || {};
+  const vMap = (await dbGet("stats_visitors")) || {};
+  const visitors = Object.keys(vMap).map((dev) => {
+    const v = Object.assign(blankVisitor(), vMap[dev] || {});
+    const pages = {};
+    let totalSecs = 0;
+    const sessOut = [];
+    (v.sess || []).forEach((s) => {
+      let ss = 0;
+      Object.keys(s.pages || {}).forEach((pg) => {
+        const e = s.pages[pg] || {};
+        pages[pg] = pages[pg] || { v: 0, s: 0, sc: 0 };
+        pages[pg].s += e.s || 0;
+        pages[pg].sc = Math.max(pages[pg].sc, e.sc || 0);
+        ss += e.s || 0;
+      });
+      totalSecs += ss;
+      sessOut.push({ t: s.t || 0, s: ss });
+    });
+    Object.keys(v.pv || {}).forEach((pg) => {
+      pages[pg] = pages[pg] || { v: 0, s: 0, sc: 0 };
+      pages[pg].v = v.pv[pg] || 0;
+    });
+    return {
+      ip: v.ip || "", cc: v.cc || "??", dtype: v.dtype || "", os: v.os || "", browser: v.browser || "",
+      first: v.first || 0, last: v.last || 0, visits: v.visits || 0, sessions: v.sessions || 0,
+      totalSecs, pages, sess: sessOut,
+    };
+  }).sort((a, b) => (b.last || 0) - (a.last || 0)).slice(0, 50);
+  const botsMap = (await dbGet("stats_bots")) || {};
+  const bots = Object.keys(botsMap).map((k) => botsMap[k]).filter(Boolean)
+    .sort((a, b) => (b.last || 0) - (a.last || 0)).slice(0, 20);
   return {
     live,
     today: outRec(days[today], today),
     yesterday: outRec(days[yesterday], yesterday),
     total: outRec(total),
-    last7, hours,
+    last7, hours, visitors, bots,
   };
 }
 
@@ -140,6 +263,8 @@ module.exports = async (req, res) => {
       await dbRemove("stats_devices");
       await dbRemove("stats_live");
       await dbRemove("stats_hours");
+      await dbRemove("stats_visitors");
+      await dbRemove("stats_bots");
       return send(res, 200, { ok: true, reset: true });
     }
 
@@ -149,6 +274,21 @@ module.exports = async (req, res) => {
       const okPin = await verifySecret(String(b.pin || ""), admin.salt, admin.hash);
       if (!okPin) return send(res, 401, { error: "Wrong PIN" });
       return send(res, 200, await buildStats());
+    }
+
+    if (type === "botlog") {
+      /* from the edge middleware: a crawler that only fetched the HTML
+         (no JavaScript). UA, IP and country arrive in the body because
+         the middleware's own request would hide the originals. */
+      const name = botName(b.ua);
+      if (!name) return send(res, 200, { ok: true });
+      const ipB = String(b.ip || "").slice(0, 64);
+      const guardB = await rateLimited(ipB || "botlog", "track", 300, 10 * 60 * 1000);
+      if (guardB.limited) return send(res, 200, { ok: true });
+      await recordFailure(guardB.key, guardB.rec, guardB.now).catch(() => {});
+      const ccRaw = String(b.cc || "").toUpperCase();
+      await recordBot(name, /^[A-Z]{2}$/.test(ccRaw) ? ccRaw : "??", ipB);
+      return send(res, 200, { ok: true });
     }
 
     /* ---- visit / ping ---- */
@@ -163,9 +303,35 @@ module.exports = async (req, res) => {
     if (guard.limited) return send(res, 200, { ok: true });
     await recordFailure(guard.key, guard.rec, guard.now).catch(() => {});
 
+    /* Bots that DO run JavaScript land here too — count them as bots,
+       never as people, and never in the live/visitor records. */
+    const bot = botName(req.headers && req.headers["user-agent"]);
+    if (bot) {
+      if (type === "visit") await recordBot(bot, visitCountry(req), ip);
+      return send(res, 200, { ok: true });
+    }
+
     const now = Date.now();
     await dbSet("stats_live/" + device, now);
-    if (type === "ping") return send(res, 200, { ok: true });
+    if (type === "ping") {
+      /* per-visitor detail: how long this page stayed open + how far
+         it was scrolled (cumulative values, stored with max semantics) */
+      const secs = Math.max(0, Math.min(86400, parseInt(b.secs, 10) || 0));
+      const scroll = Math.max(0, Math.min(100, parseInt(b.scroll, 10) || 0));
+      const v = Object.assign(blankVisitor(), (await dbGet("stats_visitors/" + device)) || {});
+      const cur = ensureSession(v, now);
+      const ent = cur.pages[page] || { s: 0, sc: 0 };
+      ent.s = Math.max(ent.s || 0, secs);
+      ent.sc = Math.max(ent.sc || 0, scroll);
+      cur.pages[page] = ent;
+      const vdP = visitDevice(req);
+      v.ip = ip; v.cc = visitCountry(req);
+      v.dtype = vdP.type; v.os = vdP.os; v.browser = vdP.browser;
+      if (!v.first) v.first = now;
+      v.last = now;
+      await dbSet("stats_visitors/" + device, v);
+      return send(res, 200, { ok: true });
+    }
 
     const day = pktDay(now);
     const devRec = await dbGet("stats_devices/" + device);
@@ -210,6 +376,18 @@ module.exports = async (req, res) => {
       days: daysMap,
       cc, dtype: vd.type, os: vd.os, browser: vd.browser,
     });
+
+    /* per-visitor detail: repeat history (visits + sessions) */
+    const v = Object.assign(blankVisitor(), (await dbGet("stats_visitors/" + device)) || {});
+    const cur = ensureSession(v, now);
+    if (!cur.pages[page]) cur.pages[page] = { s: 0, sc: 0 };
+    v.visits = (v.visits || 0) + 1;
+    v.pv = bumpMap(v.pv, page);
+    v.ip = ip; v.cc = cc;
+    v.dtype = vd.type; v.os = vd.os; v.browser = vd.browser;
+    if (!v.first) v.first = now;
+    v.last = now;
+    await dbSet("stats_visitors/" + device, v);
     return send(res, 200, { ok: true });
   } catch (e) {
     return send(res, 500, { error: "track failed" });

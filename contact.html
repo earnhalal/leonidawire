@@ -229,9 +229,30 @@ footer.site .fin{padding:32px 0 30px}
     if(!p || p === "index") p = "home";
     var ref = "";
     try{ ref = document.referrer ? new URL(document.referrer).hostname : ""; }catch(e){}
-    function send(t){ try{ fetch("/api/track", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({device:d, page:p, ref:ref, type:t}), keepalive:true}).catch(function(){}); }catch(e){} }
+    var t0 = Date.now();
+    var maxSc = 0;
+    function updSc(){
+      try{
+        var h = document.documentElement;
+        var full = Math.max(h.scrollHeight || 1, h.offsetHeight || 1);
+        var pct = Math.round((window.scrollY + window.innerHeight) / full * 100);
+        if (pct > 100) pct = 100;
+        if (pct > maxSc) maxSc = pct;
+      }catch(e){}
+    }
+    window.addEventListener("scroll", updSc, {passive:true});
+    updSc();
+    function send(t){
+      try{
+        var body = {device:d, page:p, ref:ref, type:t};
+        if (t === "ping"){ body.secs = Math.round((Date.now() - t0) / 1000); body.scroll = maxSc; }
+        fetch("/api/track", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body), keepalive:true}).catch(function(){});
+      }catch(e){}
+    }
     send("visit");
     setInterval(function(){ send("ping"); }, 30000);
+    window.addEventListener("pagehide", function(){ send("ping"); });
+    document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "hidden") send("ping"); });
   }catch(e){}
 })();
 </script></body></html>
