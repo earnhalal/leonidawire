@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About — Leonida Wire</title>
+<meta name="description" content="About Leonida Wire, an independent GTA 6 fan news site.">
+<link rel="canonical" href="https://leonidawire.pp.ua/about.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Leonida Wire">
+<meta property="og:title" content="About — Leonida Wire">
+<meta property="og:description" content="About Leonida Wire, an independent GTA 6 fan news site.">
+<meta property="og:url" content="https://leonidawire.pp.ua/about.html">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#0a0a10">
+<!-- MONETAG: ad codes pending (owner to add this site in Monetag, codes go here) -->
+<link rel='preconnect' href='https://fonts.googleapis.com'><link href='https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;600;700&display=swap' rel='stylesheet'>
+<style>
+:root{--bg:#0a0a10;--panel:#12121b;--panel2:#171724;--ink:#f4f4f7;--muted:#a8a8b8;--line:#262635;
+--pink:#ff2e7e;--pink2:#ff5c9e;--orange:#ff7a45;--cyan:#25d0e8;--gold:#f4b942;
+--grad:linear-gradient(92deg,var(--pink),var(--orange) 55%,var(--gold))}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;line-height:1.65;
+-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+::selection{background:var(--pink);color:#fff}
+a{color:var(--cyan);text-decoration:none}
+a:hover{text-decoration:underline}
+a:focus-visible,button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:4px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+img{max-width:100%}
+
+/* ---------- header ---------- */
+.topline{height:3px;background:var(--grad)}
+header.site{position:sticky;top:0;z-index:50;background:rgba(10,10,16,.9);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+border-bottom:1px solid var(--line)}
+.hd{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 0}
+.logo{font-family:'Barlow Condensed',Inter,sans-serif;font-size:31px;font-weight:700;letter-spacing:.05em;color:var(--ink);line-height:1;white-space:nowrap}
+.logo span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+a.logo:hover{text-decoration:none}
+nav.main{display:flex;gap:4px;align-items:center}
+nav.main a{color:var(--muted);font-size:14.5px;font-weight:600;padding:8px 12px;border-radius:8px;white-space:nowrap}
+nav.main a:hover{color:var(--ink);background:var(--panel2);text-decoration:none}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line);padding:64px 0 46px;
+background:
+ radial-gradient(560px 300px at 82% -40px,rgba(37,208,232,.20),transparent 62%),
+ radial-gradient(680px 340px at 12% -60px,rgba(255,46,126,.22),transparent 62%),
+ radial-gradient(420px 190px at 50% 118%,rgba(255,122,69,.30),transparent 70%),
+ linear-gradient(180deg,#0d0a16 0%,var(--bg) 78%)}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+background:repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 72px)}
+.hero .wrap{position:relative;z-index:1}
+.kicker{display:inline-flex;align-items:center;gap:9px;color:var(--gold);font-weight:700;letter-spacing:.24em;
+font-size:12.5px;text-transform:uppercase}
+.kicker::before{content:"";width:26px;height:2px;background:var(--grad);border-radius:2px}
+.hero h1{font-family:'Barlow Condensed',Inter,sans-serif;font-size:64px;line-height:.98;margin:14px 0 14px;font-weight:700;letter-spacing:.01em}
+.hero h1 .grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p.lede{color:#c9c9d6;font-size:18.5px;max-width:660px;margin:0 0 24px;line-height:1.6}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;background:linear-gradient(135deg,var(--pink2),var(--pink) 55%,#e1145c);color:#fff;font-weight:700;
+padding:13px 24px;border-radius:11px;font-size:15.5px;box-shadow:0 8px 24px rgba(255,46,126,.28)}
+.btn.alt{background:rgba(23,23,36,.75);color:var(--ink);border:1px solid #34344c;box-shadow:none}
+.btn:hover{text-decoration:none;filter:brightness(1.09)}
+.btn.alt:hover{border-color:var(--cyan);filter:none}
+.cd{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:30px}
+.cd-label{font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+.cd-boxes{display:flex;gap:8px}
+.cd-box{background:rgba(18,18,27,.82);border:1px solid var(--line);border-radius:10px;min-width:62px;padding:7px 6px 6px;text-align:center}
+.cd-box b{display:block;font-family:'Barlow Condensed',Inter,sans-serif;font-size:27px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.cd-box span{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.count{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.chip{display:inline-flex;align-items:center;gap:8px;background:rgba(18,18,27,.82);border:1px solid var(--line);
+border-radius:999px;padding:7px 14px;font-size:14px;color:var(--muted)}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--pink);flex:none}
+.chip:nth-child(2)::before{background:var(--gold)}
+.chip:nth-child(3)::before{background:var(--cyan)}
+.chip:nth-child(4)::before{background:var(--orange)}
+.chip b{color:var(--ink);font-weight:700}
+
+/* ---------- sections & cards ---------- */
+section.blk{padding:38px 0 4px;scroll-margin-top:86px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;margin:0 0 18px}
+h2.sec{font-family:'Barlow Condensed',Inter,sans-serif;font-size:35px;margin:0;letter-spacing:.02em;line-height:1;
+display:flex;align-items:center;gap:12px}
+h2.sec::before{content:"";width:5px;height:26px;border-radius:3px;background:var(--grad)}
+.sec-note{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(320px,100%),1fr));gap:16px}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:15px;
+padding:20px;display:flex;flex-direction:column;gap:9px;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.card:hover{transform:translateY(-3px);border-color:#41415e;box-shadow:0 14px 30px rgba(0,0,0,.38)}
+.cat{align-self:flex-start;font-size:11.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;
+padding:4px 11px;border-radius:999px;color:var(--pink);background:rgba(255,46,126,.12);border:1px solid rgba(255,46,126,.25)}
+.cat.guides{color:var(--cyan);background:rgba(37,208,232,.10);border-color:rgba(37,208,232,.25)}
+.cat.hub{color:var(--gold);background:rgba(244,185,66,.10);border-color:rgba(244,185,66,.28)}
+.card h3{margin:2px 0;font-size:20.5px;line-height:1.28;font-weight:700}
+.card h3 a{color:var(--ink)}
+.card h3 a:hover{color:#fff;text-decoration:none}
+.card p{color:var(--muted);font-size:15px;margin:0;flex:1;line-height:1.6}
+.meta{color:var(--muted);font-size:13px;display:flex;gap:8px;align-items:center}
+.meta::before{content:"";width:14px;height:1px;background:#3c3c55}
+
+/* ---------- featured story ---------- */
+.featured{margin-top:30px}
+.feat{display:grid;grid-template-columns:1.25fr .75fr;border:1px solid #3a2b3f;border-radius:18px;overflow:hidden;
+background:linear-gradient(120deg,#191020,#12121b 60%)}
+.feat-body{padding:28px 28px 24px;display:flex;flex-direction:column;gap:11px;align-items:flex-start}
+.feat-body h3{font-family:'Barlow Condensed',Inter,sans-serif;font-size:37px;line-height:1.05;margin:2px 0;font-weight:700}
+.feat-body h3 a{color:var(--ink)}
+.feat-body h3 a:hover{text-decoration:none;color:#fff}
+.feat-body p{color:var(--muted);font-size:16px;margin:0;line-height:1.65}
+.feat-link{margin-top:auto;font-weight:700;color:var(--pink2);font-size:15.5px}
+.feat-link:hover{color:#fff;text-decoration:none}
+.feat-art{position:relative;min-height:230px;
+background:
+ radial-gradient(300px 170px at 50% 108%,rgba(255,122,69,.5),transparent 70%),
+ radial-gradient(340px 200px at 78% -10%,rgba(37,208,232,.35),transparent 65%),
+ radial-gradient(360px 220px at 15% 0%,rgba(255,46,126,.4),transparent 65%),
+ linear-gradient(160deg,#1c0f22,#0d0d16)}
+.feat-art::after{content:"VI";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+font-family:'Barlow Condensed',Inter,sans-serif;font-weight:700;font-size:170px;letter-spacing:.02em;
+color:transparent;-webkit-text-stroke:2px rgba(255,255,255,.30)}
+.feat-tag{position:absolute;top:16px;right:16px;z-index:1;font-size:11.5px;font-weight:700;letter-spacing:.16em;
+text-transform:uppercase;color:#0a0a10;background:var(--gold);padding:5px 11px;border-radius:999px}
+
+/* ---------- article ---------- */
+article.post{max-width:740px;margin:0 auto;padding:38px 0 8px}
+article.post .cat{margin-bottom:4px}
+article.post h1{font-family:'Barlow Condensed',Inter,sans-serif;font-size:46px;line-height:1.04;margin:10px 0 12px;font-weight:700}
+article.post .meta{font-size:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+article.post p,article.post li{font-size:17.5px;line-height:1.75;color:#e9e9f1}
+article.post>p:first-of-type{font-size:19.5px;line-height:1.65;color:var(--ink)}
+article.post h2{font-family:'Barlow Condensed',Inter,sans-serif;font-size:31px;line-height:1.12;margin:36px 0 10px;
+padding-left:13px;border-left:4px solid var(--pink)}
+article.post ul{padding-left:22px}
+article.post li{margin:5px 0}
+article.post strong{color:#fff}
+article.post a{text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(37,208,232,.45)}
+article.post a:hover{text-decoration-color:var(--cyan)}
+article.post table{width:100%;border-collapse:collapse;margin:20px 0;font-size:15px;line-height:1.5;
+border:1px solid var(--line);border-radius:12px;overflow:hidden}
+article.post th,article.post td{border-bottom:1px solid var(--line);padding:10px 13px;text-align:left;vertical-align:top}
+article.post tr:last-child td{border-bottom:none}
+article.post th{background:var(--panel2);color:var(--ink);font-weight:700;white-space:nowrap}
+article.post td{color:#dcdce6}
+.more{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:15px;padding:20px 22px;margin:34px 0 6px}
+.more h3{margin:0 0 12px;font-family:'Barlow Condensed',Inter,sans-serif;font-size:25px;letter-spacing:.02em}
+.more-item{display:flex;gap:12px;align-items:baseline;padding:9px 0;border-top:1px solid var(--line)}
+.more-item:first-of-type{border-top:none;padding-top:2px}
+article.post .more-item a{font-weight:600;font-size:16.5px;color:var(--ink);text-decoration:none}
+article.post .more-item a:hover{color:var(--cyan);text-decoration:none}
+.more-item .cat{flex:none;transform:translateY(-1px)}
+.disc{border:1px dashed #3a3a52;border-radius:12px;padding:13px 17px;color:var(--muted);font-size:14px;line-height:1.6;margin:26px 0 4px}
+
+/* ---------- footer ---------- */
+footer.site{border-top:1px solid var(--line);margin-top:52px;color:var(--muted);font-size:14.5px;
+background:linear-gradient(180deg,rgba(255,46,126,.05),transparent 130px)}
+footer.site .fin{padding:32px 0 30px}
+.fcols{display:flex;gap:34px;flex-wrap:wrap;justify-content:space-between}
+.fbrand{max-width:400px}
+.fbrand p{margin:10px 0 0;line-height:1.6}
+.fnav h4{font-family:'Barlow Condensed',Inter,sans-serif;color:var(--ink);font-size:19px;letter-spacing:.06em;margin:2px 0 10px}
+.fnav a{display:block;color:var(--muted);padding:3px 0}
+.fnav a:hover{color:var(--ink);text-decoration:none}
+.fdisc{border-top:1px solid var(--line);margin-top:26px;padding-top:18px;font-size:13.5px;line-height:1.65}
+.fbase{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:13.5px}
+
+/* ---------- responsive ---------- */
+@media(max-width:900px){
+ .hero h1{font-size:50px}
+ .feat{grid-template-columns:1fr}
+ .feat-art{min-height:170px;order:-1}
+ .feat-art::after{font-size:120px}
+}
+@media(max-width:640px){
+ .wrap{padding:0 16px}
+ .hd{flex-direction:column;align-items:flex-start;gap:8px;padding:11px 0 9px}
+ nav.main{width:100%;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+ nav.main::-webkit-scrollbar{display:none}
+ nav.main a{padding:7px 10px;background:var(--panel);border:1px solid var(--line)}
+ .hero{padding:42px 0 34px}
+ .hero h1{font-size:39px}
+ .hero p.lede{font-size:16.5px}
+ .btn{padding:12px 19px;font-size:15px}
+ .cd-box{min-width:56px}
+ .cd-box b{font-size:24px}
+ h2.sec{font-size:29px}
+ .feat-body{padding:20px}
+ .feat-body h3{font-size:30px}
+ article.post{padding-top:26px}
+ article.post h1{font-size:33px}
+ article.post h2{font-size:26px;margin-top:30px}
+ article.post p,article.post li{font-size:16.5px;line-height:1.72}
+ article.post>p:first-of-type{font-size:18px}
+ article.post table{font-size:13.5px}
+ article.post th,article.post td{padding:8px 9px}
+ article.post th{white-space:normal}
+ .more-item{flex-direction:column;gap:5px}
+}
+</style>
+
+</head><div class="topline"></div>
+<header class="site"><div class="wrap hd">
+<a class="logo" href="/">LEONIDA<span>WIRE</span></a>
+<nav class="main">
+<a href="/">Home</a><a href="/#news">News</a><a href="/#guides">Guides</a><a href="/gta-6-everything-we-know.html">Release Hub</a><a href="/about.html">About</a>
+</nav></div></header>
+<div class="wrap"><article class="post"><h1>About Leonida Wire</h1><p>Leonida Wire is an independent fan publication covering Grand Theft Auto VI: launch news, release times, prices, pre-load help and, after launch, guides to the world of Leonida and Vice City.</p>
+<p>Our rule is simple: <strong>confirmed facts first, rumours labelled as rumours.</strong> GTA launches attract a flood of fake leaks and invented dates; everything here is checked against Rockstar Games, Take-Two Interactive or reputable reporting before it is published.</p>
+<p>Leonida Wire is not affiliated with Rockstar Games or Take-Two Interactive.</p></article></div>
+<footer class="site"><div class="wrap fin">
+<div class="fcols">
+<div class="fbrand"><a class="logo" href="/" style="font-size:26px">LEONIDA<span>WIRE</span></a>
+<p>GTA VI news, guides and launch coverage — fast, sourced, no rumours dressed as facts.</p></div>
+<div class="fnav"><h4>Coverage</h4>
+<a href="/#news">News</a><a href="/#guides">Guides</a><a href="/gta-6-everything-we-know.html">Release Hub</a></div>
+<div class="fnav"><h4>Site</h4>
+<a href="/about.html">About</a><a href="/privacy.html">Privacy Policy</a><a href="/contact.html">Contact</a></div>
+</div>
+<div class="fdisc">Leonida Wire is an unofficial fan site. Grand Theft Auto, GTA, Rockstar Games and Take-Two Interactive are trademarks of their respective owners. This site is not affiliated with or endorsed by Rockstar Games or Take-Two Interactive.</div>
+<div class="fbase"><span>© 2026 Leonida Wire.</span><span>An unofficial fan publication.</span></div>
+</div></footer></body></html>
