@@ -221,4 +221,18 @@ footer.site .fin{padding:32px 0 30px}
 </div>
 <div class="fdisc">Leonida Wire is an unofficial fan site. Grand Theft Auto, GTA, Rockstar Games and Take-Two Interactive are trademarks of their respective owners. This site is not affiliated with or endorsed by Rockstar Games or Take-Two Interactive.</div>
 <div class="fbase"><span>© 2026 Leonida Wire.</span><span>An unofficial fan publication.</span></div>
-</div></footer></body></html>
+</div></footer><script>
+(function(){
+  try{
+    var d = localStorage.getItem("lw_device");
+    if(!d){ d = "dev-" + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); localStorage.setItem("lw_device", d); }
+    var p = location.pathname.replace(/^\/+/, "").replace(/\.html$/, "");
+    if(!p || p === "index") p = "home";
+    var ref = "";
+    try{ ref = document.referrer ? new URL(document.referrer).hostname : ""; }catch(e){}
+    function send(t){ try{ fetch("/api/track", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify({device:d, page:p, ref:ref, type:t}), keepalive:true}).catch(function(){}); }catch(e){} }
+    send("visit");
+    setInterval(function(){ send("ping"); }, 30000);
+  }catch(e){}
+})();
+</script></body></html>

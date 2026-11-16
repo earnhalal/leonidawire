@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Leonida Wire — Analytics</title>
+<style>
+  :root{--bg:#0a0a10;--card:#12121c;--line:#23233a;--ink:#f2f0ea;--mut:#9a97a8;--pink:#ff2e7e;--cyan:#25d0e8;--gold:#f4b942}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:18px 14px 40px}
+  .wrap{max-width:1060px;margin:0 auto}
+  header{display:flex;align-items:center;gap:10px;padding:10px 2px 18px}
+  header .logo{font-size:20px;font-weight:800;letter-spacing:.4px}
+  header .logo span{background:linear-gradient(90deg,var(--pink),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  header .sub{color:var(--mut);font-size:12px}
+  header button{margin-left:auto;background:#1b1b2a;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px}
+  .livedot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#3ddc84;margin-right:6px;animation:pl 1.6s infinite}
+  @keyframes pl{0%,100%{opacity:1}50%{opacity:.3}}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+  .card h3{font-size:12px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}
+  .card .big{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+  .card .note{font-size:12px;color:var(--mut);margin-top:4px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .panel h3{font-size:13px;color:var(--mut);font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+  th{color:var(--mut);font-size:12px;text-transform:uppercase;letter-spacing:.5px}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+  .bar-row{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px}
+  .bar-row .lbl{width:110px;flex:none;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-row .tr{flex:1;background:#1b1b2a;border-radius:6px;height:14px;overflow:hidden}
+  .bar-row .fl{height:100%;background:linear-gradient(90deg,var(--pink),var(--gold));border-radius:6px}
+  .bar-row .fl.c{background:linear-gradient(90deg,#12809c,var(--cyan))}
+  .bar-row .v{width:52px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mut)}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .chart{display:flex;align-items:flex-end;gap:6px;height:110px;padding-top:8px}
+  .chart .col{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .chart .bar{width:100%;max-width:44px;background:linear-gradient(180deg,var(--pink),#8c1c4e);border-radius:6px 6px 0 0;min-height:3px}
+  .chart .dl{font-size:11px;color:var(--mut)}
+  .chart .dv{font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+  #gate{max-width:360px;margin:12vh auto 0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;text-align:center}
+  #gate h2{font-size:18px;margin-bottom:6px}
+  #gate p{color:var(--mut);font-size:13px;margin-bottom:14px}
+  #gate input{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:#0d0d16;color:var(--ink);font-size:17px;text-align:center;letter-spacing:4px;margin-bottom:10px}
+  #gate button{width:100%;padding:12px;border:0;border-radius:10px;background:linear-gradient(90deg,var(--pink),#e0608e);color:#fff;font-weight:700;font-size:15px;cursor:pointer}
+  #gate .err{color:#ff7a7a;font-size:13px;min-height:18px;margin-top:8px}
+  .hidden{display:none}
+  .foot{color:var(--mut);font-size:12px;text-align:center;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="gate">
+    <h2>🔒 Leonida Wire Analytics</h2>
+    <p id="gateMsg">Enter your stats PIN to open the dashboard.</p>
+    <input id="pinIn" type="password" inputmode="numeric" autocomplete="off" placeholder="PIN">
+    <button id="pinBtn">Open dashboard</button>
+    <div class="err" id="pinErr"></div>
+  </div>
+
+  <div id="dash" class="hidden">
+    <header>
+      <div>
+        <div class="logo">LEONIDA <span>WIRE</span></div>
+        <div class="sub">Owner analytics · live</div>
+      </div>
+      <button id="lockBtn">Lock</button>
+    </header>
+
+    <div class="grid">
+      <div class="card"><h3><span class="livedot"></span>Live now</h3><div class="big" id="kLive">–</div><div class="note">people on the site right now</div></div>
+      <div class="card"><h3>Views today</h3><div class="big" id="kViewsT">–</div><div class="note" id="kViewsTn"></div></div>
+      <div class="card"><h3>Visitors today</h3><div class="big" id="kUniT">–</div><div class="note">unique people today</div></div>
+      <div class="card"><h3>Views yesterday</h3><div class="big" id="kViewsY">–</div><div class="note" id="kViewsYn"></div></div>
+      <div class="card"><h3>Total views</h3><div class="big" id="kViewsAll">–</div><div class="note" id="kUniAll"></div></div>
+    </div>
+
+    <div class="panel">
+      <h3>📄 Posts &amp; pages — views</h3>
+      <table>
+        <thead><tr><th>Post / page</th><th class="n">Today</th><th class="n">All time</th></tr></thead>
+        <tbody id="postRows"></tbody>
+      </table>
+    </div>
+
+    <div class="cols">
+      <div class="panel"><h3>📈 Last 7 days — views</h3><div class="chart" id="chart7"></div></div>
+      <div class="panel"><h3>🕐 Today by hour (PKT)</h3><div id="hoursBox"></div></div>
+    </div>
+
+    <div class="cols">
+      <div class="panel"><h3>🔗 Sources — where visitors come from</h3><div id="srcBox"></div></div>
+      <div class="panel"><h3>🌍 Countries</h3><div id="ccBox"></div></div>
+    </div>
+
+    <div class="cols">
+      <div class="panel"><h3>📱 Devices</h3><div id="devBox"></div></div>
+      <div class="panel"><h3>🧭 Browsers &amp; OS</h3><div id="brBox"></div></div>
+    </div>
+
+    <div class="foot">Auto-refreshes every 30 seconds · Counting started when this dashboard went live · Leonida Wire owner only</div>
+  </div>
+</div>
+
+<script>
+var TITLES = {
+  "home": "🏠 Homepage",
+  "gta-6-everything-we-know": "GTA 6: Everything We Know (Release Hub)",
+  "gta-6-release-time-by-country": "GTA 6 Release Time by Country",
+  "gta-6-price-editions-pakistan": "GTA 6 Price & Editions — Pakistan",
+  "gta-6-preload-download-size": "GTA 6 Pre-Load & Download Size Guide",
+  "gta-6-pc-release-date": "GTA 6 PC Release Date",
+  "about": "About page", "privacy": "Privacy page", "contact": "Contact page"
+};
+var pin = localStorage.getItem("lw_stats_pin") || "";
+var setupMode = false;
+
+function api(body){
+  return fetch("/api/track", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(body)})
+    .then(function(r){ return r.json().then(function(j){ return {status:r.status, j:j}; }); });
+}
+function showGate(msg, setup){
+  setupMode = !!setup;
+  document.getElementById("gate").classList.remove("hidden");
+  document.getElementById("dash").classList.add("hidden");
+  document.getElementById("gateMsg").textContent = setup
+    ? "No PIN exists yet. Create your stats PIN (4–8 digits) — you will use it every time you open this page."
+    : (msg || "Enter your stats PIN to open the dashboard.");
+  document.getElementById("pinBtn").textContent = setup ? "Create PIN & open" : "Open dashboard";
+}
+function tryPin(p){
+  document.getElementById("pinErr").textContent = "";
+  if (setupMode){
+    api({type:"setpin", pin:p}).then(function(r){
+      if (r.status === 200){ localStorage.setItem("lw_stats_pin", p); pin = p; setupMode = false; load(); }
+      else document.getElementById("pinErr").textContent = (r.j && r.j.error) || "Could not set the PIN.";
+    });
+    return;
+  }
+  api({type:"stats", pin:p}).then(function(r){
+    if (r.j && r.j.setup){ showGate("", true); return; }
+    if (r.status === 200){ localStorage.setItem("lw_stats_pin", p); pin = p; render(r.j); }
+    else document.getElementById("pinErr").textContent = "Wrong PIN — try again.";
+  });
+}
+document.getElementById("pinBtn").addEventListener("click", function(){
+  var p = document.getElementById("pinIn").value.trim();
+  if (p) tryPin(p);
+});
+document.getElementById("pinIn").addEventListener("keydown", function(e){ if (e.key === "Enter") document.getElementById("pinBtn").click(); });
+document.getElementById("lockBtn").addEventListener("click", function(){
+  localStorage.removeItem("lw_stats_pin"); pin = ""; showGate();
+});
+
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+function bars(el, map, cyan){
+  var keys = Object.keys(map || {}).sort(function(a,b){ return (map[b]||0) - (map[a]||0); }).slice(0, 8);
+  if (!keys.length){ el.innerHTML = '<div style="color:var(--mut);font-size:13px">No data yet.</div>'; return; }
+  var max = Math.max.apply(null, keys.map(function(k){ return map[k] || 0; })) || 1;
+  el.innerHTML = keys.map(function(k){
+    var v = map[k] || 0;
+    return '<div class="bar-row"><div class="lbl">' + esc(k) + '</div><div class="tr"><div class="fl' + (cyan ? " c" : "") + '" style="width:' + Math.round(v / max * 100) + '%"></div></div><div class="v">' + v + '</div></div>';
+  }).join("");
+}
+function render(s){
+  document.getElementById("gate").classList.add("hidden");
+  document.getElementById("dash").classList.remove("hidden");
+  document.getElementById("kLive").textContent = s.live || 0;
+  document.getElementById("kViewsT").textContent = s.today.visits || 0;
+  document.getElementById("kViewsTn").textContent = s.today.date || "";
+  document.getElementById("kUniT").textContent = s.today.uniques || 0;
+  document.getElementById("kViewsY").textContent = s.yesterday.visits || 0;
+  document.getElementById("kViewsYn").textContent = (s.yesterday.uniques || 0) + " visitors · " + (s.yesterday.date || "");
+  document.getElementById("kViewsAll").textContent = s.total.visits || 0;
+  document.getElementById("kUniAll").textContent = (s.total.uniques || 0) + " unique visitors all time";
+
+  var tp = s.today.pages || {}, ap = s.total.pages || {};
+  var keys = Object.keys(ap);
+  Object.keys(tp).forEach(function(k){ if (keys.indexOf(k) < 0) keys.push(k); });
+  keys.sort(function(a,b){ return (ap[b]||0) - (ap[a]||0); });
+  document.getElementById("postRows").innerHTML = keys.length ? keys.map(function(k){
+    return "<tr><td>" + esc(TITLES[k] || k) + '</td><td class="n">' + (tp[k] || 0) + '</td><td class="n">' + (ap[k] || 0) + "</td></tr>";
+  }).join("") : '<tr><td colspan="3" style="color:var(--mut)">No views yet.</td></tr>';
+
+  var max7 = Math.max.apply(null, s.last7.map(function(d){ return d.visits; }).concat([1]));
+  document.getElementById("chart7").innerHTML = s.last7.map(function(d){
+    var h = Math.max(3, Math.round(d.visits / max7 * 74));
+    return '<div class="col"><div class="dv">' + d.visits + '</div><div class="bar" style="height:' + h + 'px"></div><div class="dl">' + d.d.slice(5) + "</div></div>";
+  }).join("");
+
+  var hours = s.hours || {};
+  var hk = Object.keys(hours).sort();
+  var hb = document.getElementById("hoursBox");
+  if (!hk.length) hb.innerHTML = '<div style="color:var(--mut);font-size:13px">No visits yet today.</div>';
+  else {
+    var hmap = {};
+    hk.forEach(function(k){ hmap[k + ":00"] = hours[k]; });
+    bars(hb, hmap, true);
+  }
+
+  bars(document.getElementById("srcBox"), s.total.sources || {});
+  bars(document.getElementById("ccBox"), s.total.countries || {}, true);
+  bars(document.getElementById("devBox"), s.total.devtypes || {});
+  var bo = {};
+  Object.keys(s.total.browsers || {}).forEach(function(k){ bo[k] = s.total.browsers[k]; });
+  Object.keys(s.total.oses || {}).forEach(function(k){ bo[k] = (bo[k] || 0) + s.total.oses[k]; });
+  bars(document.getElementById("brBox"), bo, true);
+}
+function load(){
+  if (!pin){ showGate(); return; }
+  api({type:"stats", pin:pin}).then(function(r){
+    if (r.j && r.j.setup){ showGate("", true); return; }
+    if (r.status === 200) render(r.j);
+    else { localStorage.removeItem("lw_stats_pin"); pin = ""; showGate("That PIN was not accepted."); }
+  }).catch(function(){ showGate("Could not reach the stats server."); });
+}
+load();
+setInterval(function(){ if (pin && !document.getElementById("dash").classList.contains("hidden")) load(); }, 30000);
+</script>
+</body>
+</html>
