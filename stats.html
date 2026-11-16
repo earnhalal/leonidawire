@@ -278,7 +278,7 @@ function renderVisitors(list){
       return esc(sessWhen(ss.t)) + " — " + fmtDur(ss.s);
     }).join(" &nbsp;·&nbsp; ");
     return '<div class="vis">' +
-      '<div class="vtop"><span class="vcc">' + esc(ccLabel(v.cc)) + '</span><span class="vip">' + esc(v.ip || "IP unknown") + "</span></div>" +
+      '<div class="vtop"><span class="vcc">' + esc(ccLabel(v.cc)) + (v.city ? ' <span style="color:var(--mut);font-weight:400">· ' + esc(v.city) + "</span>" : "") + '</span><span class="vip">' + esc(v.ip || "IP unknown") + "</span></div>" +
       '<div class="vmeta">' + esc([v.dtype, v.os, v.browser].filter(Boolean).join(" · ")) +
         " — <b>" + (v.visits || 0) + " visit" + ((v.visits||0) === 1 ? "" : "s") + "</b> in " + (v.sessions || 0) + " session" + ((v.sessions||0) === 1 ? "" : "s") +
         " · last seen " + relTime(v.last) + " · total stay " + fmtDur(v.totalSecs) + "</div>" +
@@ -298,7 +298,7 @@ function renderBots(s){
   box.innerHTML = '<div style="margin-top:10px">' + list.map(function(bt){
     return '<div class="vis"><div class="vtop"><span class="vcc">🤖 ' + esc(bt.name || "Bot") + '</span>' +
       '<span class="vip">' + esc(bt.ip || "") + '</span></div>' +
-      '<div class="vmeta">' + esc(ccLabel(bt.cc)) + " · " + (bt.n || 0) + " visit" + ((bt.n||0) === 1 ? "" : "s") +
+      '<div class="vmeta">' + esc(ccLabel(bt.cc)) + (bt.city ? " · " + esc(bt.city) : "") + " · " + (bt.n || 0) + " visit" + ((bt.n||0) === 1 ? "" : "s") +
       " total · last seen " + relTime(bt.last) + "</div></div>";
   }).join("") + "</div>";
 }

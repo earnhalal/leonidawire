@@ -13,11 +13,11 @@
      stats_hours/<day>/<HH> = n
      stats_devices/<device> = {first, last, days:{<day>:1}, cc, dtype, os, browser}
      stats_live/<device> = last heartbeat ts
-     stats_visitors/<device> = {ip, cc, dtype, os, browser, first, last,
+     stats_visitors/<device> = {ip, cc, city, dtype, os, browser, first, last,
        visits, sessions, pv:{<page>:views},
        sess:[{t, pages:{<page>:{s:secs, sc:scrollMax}}}] (newest first, max 8;
        a new session starts after 30 min of inactivity)}
-     stats_bots/<bot name> = {name, n, last, cc, ip} — crawlers and AI
+     stats_bots/<bot name> = {name, n, last, cc, city, ip} — crawlers and AI
        agents are counted SEPARATELY (day/total "bots" maps + this
        last-seen index), never inside the human numbers. They arrive via
        the JS tracker (bots that render pages) and via POST {type:"botlog"}
@@ -36,7 +36,7 @@ const SESSION_GAP = 30 * 60 * 1000;
 const MAX_SESS = 8;
 
 function blankVisitor() {
-  return { ip: "", cc: "??", dtype: "", os: "", browser: "", first: 0, last: 0, visits: 0, sessions: 0, pv: {}, sess: [] };
+  return { ip: "", cc: "??", city: "", dtype: "", os: "", browser: "", first: 0, last: 0, visits: 0, sessions: 0, pv: {}, sess: [] };
 }
 /* Returns the visitor's current session record, starting (and counting)
    a new one when the last activity is older than SESSION_GAP. */
@@ -57,6 +57,18 @@ function pktDay(ts) {
 function visitCountry(req) {
   const cc = String((req.headers && req.headers["x-vercel-ip-country"]) || "").toUpperCase();
   return /^[A-Z]{2}$/.test(cc) ? cc : "??";
+}
+/* Vercel also sends the visitor's city (URL-encoded, ISP-based, so it
+   is an approximation — sometimes the nearest big city, sometimes
+   empty). Sanitized before it is stored or shown. */
+function cleanCity(raw) {
+  let s = String(raw || "");
+  try { s = decodeURIComponent(s); } catch (e) { /* keep raw */ }
+  s = s.replace(/[<>\u0000-\u001f]/g, "").trim().slice(0, 60);
+  return s;
+}
+function visitCity(req) {
+  return cleanCity(req.headers && req.headers["x-vercel-ip-city"]);
 }
 function visitDevice(req) {
   const ua = String((req.headers && req.headers["user-agent"]) || "");
@@ -149,7 +161,7 @@ function botName(ua) {
 }
 /* Count one bot visit: day + total "bots" maps and the last-seen index.
    Human counters (visits/uniques/pages/...) are NOT touched. */
-async function recordBot(name, cc, ip) {
+async function recordBot(name, cc, ip, city) {
   const now = Date.now();
   const day = pktDay(now);
   const dayRec = Object.assign(blankRec(), (await dbGet("stats_days/" + day)) || {});
@@ -161,7 +173,7 @@ async function recordBot(name, cc, ip) {
   const prev = (await dbGet("stats_bots/" + name)) || {};
   await dbSet("stats_bots/" + name, {
     name, n: (prev.n || 0) + 1, last: now,
-    cc: cc || prev.cc || "??", ip: ip || prev.ip || "",
+    cc: cc || prev.cc || "??", ip: ip || prev.ip || "", city: city || prev.city || "",
   });
 }
 function outRec(rec, date) {
@@ -215,7 +227,7 @@ async function buildStats() {
       pages[pg].v = v.pv[pg] || 0;
     });
     return {
-      ip: v.ip || "", cc: v.cc || "??", dtype: v.dtype || "", os: v.os || "", browser: v.browser || "",
+      ip: v.ip || "", cc: v.cc || "??", city: v.city || "", dtype: v.dtype || "", os: v.os || "", browser: v.browser || "",
       first: v.first || 0, last: v.last || 0, visits: v.visits || 0, sessions: v.sessions || 0,
       totalSecs, pages, sess: sessOut,
     };
@@ -287,7 +299,7 @@ module.exports = async (req, res) => {
       if (guardB.limited) return send(res, 200, { ok: true });
       await recordFailure(guardB.key, guardB.rec, guardB.now).catch(() => {});
       const ccRaw = String(b.cc || "").toUpperCase();
-      await recordBot(name, /^[A-Z]{2}$/.test(ccRaw) ? ccRaw : "??", ipB);
+      await recordBot(name, /^[A-Z]{2}$/.test(ccRaw) ? ccRaw : "??", ipB, cleanCity(b.city));
       return send(res, 200, { ok: true });
     }
 
@@ -307,7 +319,7 @@ module.exports = async (req, res) => {
        never as people, and never in the live/visitor records. */
     const bot = botName(req.headers && req.headers["user-agent"]);
     if (bot) {
-      if (type === "visit") await recordBot(bot, visitCountry(req), ip);
+      if (type === "visit") await recordBot(bot, visitCountry(req), ip, visitCity(req));
       return send(res, 200, { ok: true });
     }
 
@@ -326,6 +338,7 @@ module.exports = async (req, res) => {
       cur.pages[page] = ent;
       const vdP = visitDevice(req);
       v.ip = ip; v.cc = visitCountry(req);
+      v.city = visitCity(req) || v.city;
       v.dtype = vdP.type; v.os = vdP.os; v.browser = vdP.browser;
       if (!v.first) v.first = now;
       v.last = now;
@@ -384,6 +397,7 @@ module.exports = async (req, res) => {
     v.visits = (v.visits || 0) + 1;
     v.pv = bumpMap(v.pv, page);
     v.ip = ip; v.cc = cc;
+    v.city = visitCity(req) || v.city;
     v.dtype = vd.type; v.os = vd.os; v.browser = vd.browser;
     if (!v.first) v.first = now;
     v.last = now;

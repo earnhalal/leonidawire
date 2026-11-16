@@ -22,8 +22,9 @@ export default function middleware(req, context) {
     if (!BOT_RE.test(ua)) return;
     const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
     const cc = req.headers.get("x-vercel-ip-country") || "";
+    const city = req.headers.get("x-vercel-ip-city") || "";
     const page = path === "/" ? "home" : path.replace(/^\/+/, "").replace(/\.html$/, "");
-    const body = JSON.stringify({ type: "botlog", ua: ua, ip: ip, cc: cc, page: page });
+    const body = JSON.stringify({ type: "botlog", ua: ua, ip: ip, cc: cc, city: city, page: page });
     const p = fetch(new URL("/api/track", req.url).toString(), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
